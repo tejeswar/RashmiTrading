@@ -1,0 +1,179 @@
+package com.sapient;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+public class FeeCalculator {
+	public static void main(String[] args) {
+		List<Transaction> allTransactions = getAllTransactions();
+		List<SummaryReport> generatedSummaryReport = generateSummaryReport(allTransactions);
+		printSummaryReports(generatedSummaryReport);
+		
+	}
+
+	private static void printSummaryReports(List<SummaryReport> generatedSummaryReport) {
+		 System.out.println("------------------------------------------------------------------------------------------------");
+		    System.out.printf("%10s %18s %20s %15s %25s", "CLIENT_ID", "TRANSACTION_TYPE", "TRANSACTION_DATe", "PRIORITY", "PROCESSING_FEE");
+		    System.out.println();
+		    System.out.println("----------------------------------------------------------------------------------------------");
+		    for(SummaryReport report: generatedSummaryReport){
+		        System.out.format("%10s %18s %20s %15s %25s",
+		                report.getClientId(), report.getTransactionType(), report.getTransactionDate(), report.getPriorityFlag(), report.getProcessingFee());
+		        System.out.println();		    }
+		    System.out.println("----------------------------------------------------------------------------------------------");
+
+		    Map<Integer, List<SummaryReport>> map = generatedSummaryReport.stream()
+	                .collect(Collectors.groupingBy(SummaryReport::getClientId));
+            System.out.println(map);
+		
+	}
+
+	public static List<Transaction> getAllTransactions(){
+		
+		List<Transaction> listOfTransaction = new ArrayList<>();
+		
+		Transaction tr1 = new Transaction(1, 11, 111, "buy", "08/20/2018", 90, 'Y');
+		Transaction tr2 = new Transaction(2, 22, 222, "withdraw", "07/16/2018", 90, 'N');
+		Transaction tr3 = new Transaction(3, 33, 333, "deposite", "03/15/2018", 90, 'N');
+		Transaction tr4 = new Transaction(4, 11, 111, "sell", "08/20/2018", 90, 'N');
+		Transaction tr5 = new Transaction(5, 22, 555, "buy", "06/23/2018", 90, 'Y');
+		listOfTransaction.add(tr1);
+		listOfTransaction.add(tr2);
+		listOfTransaction.add(tr3);
+		listOfTransaction.add(tr4);
+		listOfTransaction.add(tr5);
+		
+		return listOfTransaction;
+	}
+	
+	public static List<SummaryReport> generateSummaryReport(List<Transaction> listOfTransaction) {
+		List<IntradayTransaction> intradayTrransactions = new ArrayList<>();
+		List<SummaryReport> listOfSummaryReport = new ArrayList<>();
+		for (int currentTransactionIndex = 0; currentTransactionIndex < listOfTransaction
+				.size(); currentTransactionIndex++) {
+			boolean isIntradayTransaction = false;
+
+			int intradayTransactionIndex = -1;
+			Transaction currentTransaction = listOfTransaction.get(currentTransactionIndex);
+			for (int nextTransactionIndex = currentTransactionIndex + 1; nextTransactionIndex < listOfTransaction
+					.size(); nextTransactionIndex++) {
+
+				Transaction nextTransaction = listOfTransaction.get(nextTransactionIndex);
+				isIntradayTransaction = isIntradayTransaction(currentTransaction, nextTransaction,
+						intradayTrransactions);
+
+				if (isIntradayTransaction) {
+
+					intradayTransactionIndex = nextTransactionIndex;
+					break;
+
+				}
+			}
+			if (isIntradayTransaction) {
+				Transaction intradayTransaction = listOfTransaction.get(intradayTransactionIndex);
+				populateProcessFeeForIntraDayRecords(currentTransaction, listOfSummaryReport);
+				populateProcessFeeForIntraDayRecords(intradayTransaction, listOfSummaryReport);
+				listOfTransaction.remove(intradayTransactionIndex);
+			} else {
+
+				populateProcessFeeForNormalRecords(currentTransaction, listOfSummaryReport);
+			}
+
+		}
+		System.out.println("No of intratransationPairs :" + intradayTrransactions.size());
+		return listOfSummaryReport;
+	}
+
+	private static void populateProcessFeeForNormalRecords(Transaction currentTransaction,
+			List<SummaryReport> listOfSummaryReport) {
+		int totalProcessingFeeForCurrenttransaction = 0;
+		if(currentTransaction.getPriorityFlag().charValue() == 'Y') {
+			totalProcessingFeeForCurrenttransaction += 500;
+		}
+		else if((currentTransaction.getPriorityFlag().charValue() == 'N' ) && 
+				(currentTransaction.getTransactionType().equalsIgnoreCase(TransactionTypeConstants.SELL) || 
+						currentTransaction.getTransactionType().equalsIgnoreCase(TransactionTypeConstants.WITHDRAW))) {
+			totalProcessingFeeForCurrenttransaction += 100;
+		}
+		else if((currentTransaction.getPriorityFlag().charValue() == 'N' ) && 
+				(currentTransaction.getTransactionType().equalsIgnoreCase(TransactionTypeConstants.BUY) || 
+						currentTransaction.getTransactionType().equalsIgnoreCase(TransactionTypeConstants.DEPOSITE))) {
+			totalProcessingFeeForCurrenttransaction += 50;
+		}
+		SummaryReport summaryReport = new SummaryReport(currentTransaction.getClientId(), currentTransaction.getTransactionType(), 
+				currentTransaction.getTransactionDate(), currentTransaction.getPriorityFlag(), totalProcessingFeeForCurrenttransaction);
+		listOfSummaryReport.add(summaryReport);
+		
+	}
+
+	private static void populateProcessFeeForIntraDayRecords(Transaction currentTransaction,
+			List<SummaryReport> listOfSummaryReport) {
+				
+		int totalProcessingFeeForCurrenttransaction = 10;
+		SummaryReport summaryReport = new SummaryReport(currentTransaction.getClientId(), currentTransaction.getTransactionType(), 
+				currentTransaction.getTransactionDate(), currentTransaction.getPriorityFlag(), totalProcessingFeeForCurrenttransaction);
+		listOfSummaryReport.add(summaryReport);
+		
+	}
+
+	private static boolean isIntradayTransaction(Transaction currentTransaction, Transaction nextTransaction,
+			List<IntradayTransaction> intradayTrransactions) {
+		int currentTransactionClientId = currentTransaction.getClientId();
+		int nextTransactionClientId = nextTransaction.getClientId();
+		
+		int currentTransactionSecurityId = currentTransaction.getSecurityId();
+		int nextTransactionSecurityId = nextTransaction.getSecurityId();
+		
+		String currentTransactionDate = currentTransaction.getTransactionDate();
+		String nextTransactionDate = nextTransaction.getTransactionDate();
+		
+		boolean isTransactionTypeAppropriate = isTransactionTypeAppropriate(currentTransaction,nextTransaction);
+		boolean isSameDate = isBothDatesAreSame(currentTransactionDate,nextTransactionDate);
+		
+		if(isTransactionTypeAppropriate && currentTransactionClientId == nextTransactionClientId && isSameDate
+				&& currentTransactionSecurityId ==  nextTransactionSecurityId) {
+			
+			IntradayTransaction intradayTransaction = new IntradayTransaction(currentTransaction, nextTransaction);
+			intradayTrransactions.add(intradayTransaction);
+			return true;
+			
+		}
+
+       return false;
+		
+	}
+
+	private static boolean isTransactionTypeAppropriate(Transaction currentTransaction, Transaction nextTransaction) {
+		
+		String currentTransactionType = currentTransaction.getTransactionType();
+		String nextTransactionType = nextTransaction.getTransactionType();
+		if((currentTransactionType.equalsIgnoreCase(TransactionTypeConstants.BUY) && nextTransactionType.equalsIgnoreCase(TransactionTypeConstants.SELL))
+				|| (currentTransactionType.equalsIgnoreCase(TransactionTypeConstants.SELL) && nextTransactionType.equalsIgnoreCase(TransactionTypeConstants.BUY))) {
+			return true;
+		}
+		return false;
+	}
+
+	private static boolean isBothDatesAreSame(String currentTransactionDate, String nextTransactionDate) {
+		try {
+		Date _currentTransactionDate=new SimpleDateFormat("MM/dd/yyyy").parse(currentTransactionDate);  
+		Date _nextTransactionDate =new SimpleDateFormat("MM/dd/yyyy").parse(nextTransactionDate);
+		if(_currentTransactionDate.equals(_nextTransactionDate)) {
+			
+			return true;
+		}
+		
+		return false;
+		} catch (ParseException e) {
+		
+			System.err.print(e);
+		} 
+	
+		return false;
+	}
+}
