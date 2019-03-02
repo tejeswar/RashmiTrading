@@ -1,0 +1,26 @@
+package com.sapient;
+
+public class IntradayTransaction {
+
+	private Transaction transaction;
+	private Transaction respectiveIntradayTransaction;
+	public IntradayTransaction(Transaction transaction, Transaction respectiveIntradayTransaction) {
+		super();
+		this.transaction = transaction;
+		this.respectiveIntradayTransaction = respectiveIntradayTransaction;
+	}
+	public Transaction getTransaction() {
+		return transaction;
+	}
+	public void setTransaction(Transaction transaction) {
+		this.transaction = transaction;
+	}
+	public Transaction getRespectiveIntradayTransaction() {
+		return respectiveIntradayTransaction;
+	}
+	public void setRespectiveIntradayTransaction(Transaction respectiveIntradayTransaction) {
+		this.respectiveIntradayTransaction = respectiveIntradayTransaction;
+	}
+	
+	
+}
