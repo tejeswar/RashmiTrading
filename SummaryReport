@@ -1,0 +1,52 @@
+package com.sapient;
+
+import java.util.Date;
+
+public class SummaryReport {
+
+	private int clientId;
+	private String transactionType;
+	private String transactionDate;
+	private Character priorityFlag;
+	private float processingFee;
+	public SummaryReport(int clientId, String transactionType, String transactionDate, Character priorityFlag,
+			float processingFee) {
+		super();
+		this.clientId = clientId;
+		this.transactionType = transactionType;
+		this.transactionDate = transactionDate;
+		this.priorityFlag = priorityFlag;
+		this.processingFee = processingFee;
+	}
+	public int getClientId() {
+		return clientId;
+	}
+	public void setClientId(int clientId) {
+		this.clientId = clientId;
+	}
+	public String getTransactionType() {
+		return transactionType;
+	}
+	public void setTransactionType(String transactionType) {
+		this.transactionType = transactionType;
+	}
+	public String getTransactionDate() {
+		return transactionDate;
+	}
+	public void setTransactionDate(String transactionDate) {
+		this.transactionDate = transactionDate;
+	}
+	public Character getPriorityFlag() {
+		return priorityFlag;
+	}
+	public void setPriorityFlag(Character priorityFlag) {
+		this.priorityFlag = priorityFlag;
+	}
+	public float getProcessingFee() {
+		return processingFee;
+	}
+	public void setProcessingFee(float processingFee) {
+		this.processingFee = processingFee;
+	}
+	
+}
