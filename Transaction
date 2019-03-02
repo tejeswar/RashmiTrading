@@ -1,0 +1,69 @@
+package com.sapient;
+
+import java.util.Date;
+
+public class Transaction {
+
+	private int externalTransactionId;
+	private int clientId;
+	private int securityId;
+	private String transactionType;
+	private String transactionDate;
+	private int marketValue;
+	private Character priorityFlag;
+	public Transaction(int externalTransactionId, int clientId, int securityId, String transactionType,
+			String transactionDate, int marketValue, Character priorityFlag) {
+		super();
+		this.externalTransactionId = externalTransactionId;
+		this.clientId = clientId;
+		this.securityId = securityId;
+		this.transactionType = transactionType;
+		this.transactionDate = transactionDate;
+		this.marketValue = marketValue;
+		this.priorityFlag = priorityFlag;
+	}
+	public int getExternalTransactionId() {
+		return externalTransactionId;
+	}
+	public void setExternalTransactionId(int externalTransactionId) {
+		this.externalTransactionId = externalTransactionId;
+	}
+	public int getClientId() {
+		return clientId;
+	}
+	public void setClientId(int clientId) {
+		this.clientId = clientId;
+	}
+	public int getSecurityId() {
+		return securityId;
+	}
+	public void setSecurityId(int securityId) {
+		this.securityId = securityId;
+	}
+	public String getTransactionType() {
+		return transactionType;
+	}
+	public void setTransactionType(String transactionType) {
+		this.transactionType = transactionType;
+	}
+	public String getTransactionDate() {
+		return transactionDate;
+	}
+	public void setTransactionDate(String transactionDate) {
+		this.transactionDate = transactionDate;
+	}
+	public int getMarketValue() {
+		return marketValue;
+	}
+	public void setMarketValue(int marketValue) {
+		this.marketValue = marketValue;
+	}
+	public Character getPriorityFlag() {
+		return priorityFlag;
+	}
+	public void setPriorityFlag(Character priorityFlag) {
+		this.priorityFlag = priorityFlag;
+	}
+	
+	
+}
