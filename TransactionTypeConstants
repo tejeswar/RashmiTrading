@@ -1,0 +1,9 @@
+package com.sapient;
+
+public class TransactionTypeConstants {
+
+	public static final String BUY = "Buy";
+	public static final String SELL = "Sell";
+	public static final String DEPOSITE = "Deposite";
+	public static final String WITHDRAW = "Withdraw";
+}
